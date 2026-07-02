@@ -1,0 +1,90 @@
+The Factory Design Pattern is a creational design pattern used to create objects without exposing
+the object creation logic to the client.
+
+Instead of using new directly, the client asks a factory to create the object.
+
+-------------------------------------------------------------------------
+
+Follow: Open/Close Principle.
+
+zomato -> No switch case, rather we use factory class so suppose if we have 100 more dishes then in that case,
+            we have to add 100+ factory class as well. so we will use switch/Map.
+
+Dish
+    Burger/Pizza
+DishFactory
+    BurgerFactory / PizzaFactory
+ZomatoClient => Test class
+
+========================
+zomatoCase -> Using Switch/Map
+
+
+
+========================
+
+Ques: Which SOLID Principle follow ?
+
+1. Dependency Inversion Principle (DIP) ✅
+    The client depends on the abstraction:
+    Dish dish = DishFactory.createDish("PIZZA");
+
+    instead of:
+    Pizza pizza = new Pizza();
+
+    The client works with Dish, not concrete implementations.
+    So DIP is partially followed.
+
+2. Open/Closed Principle (OCP) ❌
+
+    Suppose we add:
+    class Burger implements Dish
+    We must modify the factory:
+
+    case "BURGER":
+        return new Burger();
+
+    Existing code changes.
+    OCP says: Software entities should be open for extension but closed for modification.
+
+    This factory is not closed for modification.
+    Therefore OCP is violated.
+
+3. Single Responsibility Principle (SRP) ✅
+    The factory has one responsibility:
+    Create Dish objects
+    So SRP is generally followed.
+
+4. Liskov Substitution Principle (LSP) ✅
+    Every implementation:
+
+    Pizza implements Dish
+    Sushi implements Dish
+
+    can be used wherever a Dish is expected:
+
+    Dish dish = new Pizza();
+    Dish dish = new Sushi();
+
+    LSP is followed.
+
+5. Interface Segregation Principle (ISP) ✅
+
+    The interface is small:
+    interface Dish {
+        void prepare();
+        void serve();
+    }
+
+    Implementations aren't forced to implement unused methods.
+    ISP is followed.
+
+Q: Which SOLID principles are followed by the switch-based Factory Pattern?
+Answer:
+✅ SRP – Factory is responsible only for object creation.
+✅ DIP – Client depends on Dish abstraction rather than concrete classes.
+✅ LSP – Any Dish implementation can replace another.
+✅ ISP – Small focused interface.
+❌ OCP – Violated because every new dish requires modifying the switch statement in the factory.
+
+

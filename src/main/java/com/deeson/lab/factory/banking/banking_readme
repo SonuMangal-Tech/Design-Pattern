@@ -1,0 +1,5 @@
+Example:
+Account ->  interface (calculateInterest(), creditOffer())
+           Saving/Current/Corporate : implements Account
+           AccountFactory
+Note: Can be acceptPaymentTransfer: UPI, Card, Netbanking
