@@ -1,0 +1,239 @@
+Discount -> PremiumUserDiscount/FestiveDiscount/NoDiscount
+
+
+
+Problem Statement (Realistic)
+
+Final price depends on:
+
+User type (Regular / Premium)
+Coupon applied
+Festival offers
+
+👉 We want to plug different discount strategies dynamically.
+
+Common Interview Trap
+
+👉 “Can we apply multiple discounts together?”
+
+Answer:
+
+❌ Strategy → Only ONE algorithm at a time
+✅ If multiple needed → use Decorator Pattern
+⚡ When to Use Strategy in E-commerce
+
+Use it when:
+
+Multiple interchangeable business rules exist
+You want to avoid if-else chains
+Logic may grow in future
+
+If you want next level (very powerful for your experience):
+
+👉 I can combine:
+
+Strategy (discount selection)
+Decorator (stack multiple discounts)
+Spring Boot (real implementation)
+
+
+=======================================
+
+
+
+
+combine strategy and decorator design pattern
+
+Good—this is exactly how real pricing engines are built.
+Strategy decides which discount logic to use, and Decorator lets you stack multiple adjustments (coupon + tax + delivery + etc).
+
+Let’s design a clean, production-style e-commerce pricing engine.
+
+🛒 Problem Statement
+
+Final price should support:
+
+Strategy → choose base discount (Festival / Premium)
+Decorator → add:
+Coupon discount
+Tax
+Delivery charges
+
+👉 Example:
+
+Base Price → Festival Discount (Strategy)
+→ Coupon → Tax → Delivery (Decorators)
+✅ Design Overview
+PricingStrategy → Strategy
+PriceComponent → Base interface
+BasePrice → Concrete component
+PriceDecorator → Abstract decorator
+Concrete decorators → Coupon, Tax, Delivery
+🧩 Complete Code
+1. Strategy Interface
+interface PricingStrategy {
+    int applyBaseDiscount(int amount);
+}
+2. Strategy Implementations
+class NoDiscountStrategy implements PricingStrategy {
+    public int applyBaseDiscount(int amount) {
+        return amount;
+    }
+}
+
+class FestivalStrategy implements PricingStrategy {
+    public int applyBaseDiscount(int amount) {
+        return amount - (amount * 10 / 100);
+    }
+}
+
+class PremiumStrategy implements PricingStrategy {
+    public int applyBaseDiscount(int amount) {
+        return amount - 200;
+    }
+}
+3. Component Interface
+interface PriceComponent {
+    int getPrice();
+    String getDescription();
+}
+4. Base Component
+class BasePrice implements PriceComponent {
+
+    private int basePrice;
+    private PricingStrategy strategy;
+
+    public BasePrice(int basePrice, PricingStrategy strategy) {
+        this.basePrice = basePrice;
+        this.strategy = strategy;
+    }
+
+    @Override
+    public int getPrice() {
+        return strategy.applyBaseDiscount(basePrice);
+    }
+
+    @Override
+    public String getDescription() {
+        return "Base Price after Strategy";
+    }
+}
+5. Abstract Decorator
+abstract class PriceDecorator implements PriceComponent {
+    protected PriceComponent component;
+
+    public PriceDecorator(PriceComponent component) {
+        this.component = component;
+    }
+}
+6. Concrete Decorators
+🎟️ Coupon
+class CouponDecorator extends PriceDecorator {
+
+    public CouponDecorator(PriceComponent component) {
+        super(component);
+    }
+
+    @Override
+    public int getPrice() {
+        return component.getPrice() - 100;
+    }
+
+    @Override
+    public String getDescription() {
+        return component.getDescription() + " + Coupon";
+    }
+}
+🧾 Tax (10%)
+class TaxDecorator extends PriceDecorator {
+
+    public TaxDecorator(PriceComponent component) {
+        super(component);
+    }
+
+    @Override
+    public int getPrice() {
+        int price = component.getPrice();
+        return price + (price * 10 / 100);
+    }
+
+    @Override
+    public String getDescription() {
+        return component.getDescription() + " + Tax";
+    }
+}
+🚚 Delivery
+class DeliveryDecorator extends PriceDecorator {
+
+    public DeliveryDecorator(PriceComponent component) {
+        super(component);
+    }
+
+    @Override
+    public int getPrice() {
+        return component.getPrice() + 50;
+    }
+
+    @Override
+    public String getDescription() {
+        return component.getDescription() + " + Delivery";
+    }
+}
+7. Client Code
+public class Main {
+    public static void main(String[] args) {
+
+        int baseAmount = 1000;
+
+        // Step 1: Apply Strategy
+        PricingStrategy strategy = new FestivalStrategy();
+        PriceComponent price = new BasePrice(baseAmount, strategy);
+
+        // Step 2: Apply Decorators dynamically
+        price = new CouponDecorator(price);
+        price = new TaxDecorator(price);
+        price = new DeliveryDecorator(price);
+
+        System.out.println(price.getDescription());
+        System.out.println("Final Price: " + price.getPrice());
+    }
+}
+🧠 Example Output
+Base Price after Strategy + Coupon + Tax + Delivery
+Final Price: 1045
+🔥 Why This Design is Powerful
+✅ Strategy handles:
+“Which discount to apply?”
+Cleanly replaceable logic
+✅ Decorator handles:
+“What all extra adjustments to add?”
+Stackable features
+⚡ Real E-commerce Mapping
+Feature	Pattern
+Festival / Premium discount	Strategy
+Coupon stacking	Decorator
+Tax calculation	Decorator
+Delivery fee	Decorator
+🚀 Senior-Level Insight (This is what impresses interviewers)
+
+👉 In real systems:
+
+Strategy is selected using Factory / DB config
+Decorators are applied based on:
+User input
+Cart rules
+Feature flags
+
+👉 You might even build:
+
+List<PriceDecorator> decorators
+
+and apply in loop (dynamic pipeline)
+
+⚠️ Important Interview Point
+
+👉 Why combine both?
+
+Answer:
+
+Strategy is good for selecting one algorithm, but when multiple pricing rules need to be applied together, Decorator provides a flexible way to chain them without modifying existing code.
